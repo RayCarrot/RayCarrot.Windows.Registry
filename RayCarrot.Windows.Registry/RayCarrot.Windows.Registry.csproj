@@ -12,9 +12,4 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\RayCarrot.Common\RayCarrot.Common\RayCarrot.Common.csproj" />
-    <ProjectReference Include="..\..\RayCarrot.Logging\RayCarrot.Logging\RayCarrot.Logging.csproj" />
-  </ItemGroup>
-
 </Project>

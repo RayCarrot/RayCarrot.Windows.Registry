@@ -1,6 +1,4 @@
 ﻿using Microsoft.Win32;
-using RayCarrot.Common;
-using RayCarrot.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,8 +99,6 @@ namespace RayCarrot.Windows.Registry
             }
             catch (Exception ex)
             {
-                ex.HandleError("Copying sub key tree", registryKey);
-
                 // Delete copied key
                 registryKey.DeleteSubKeyTree(newSubKeyName, false);
 
@@ -117,8 +113,6 @@ namespace RayCarrot.Windows.Registry
             }
             catch (Exception ex)
             {
-                ex.HandleError("Deleting old key after copying", registryKey);
-
                 throw new Exception("Failed to fully delete old key", ex);
             }
         }
@@ -131,10 +125,10 @@ namespace RayCarrot.Windows.Registry
         /// <param name="newValueName">The new name of the value</param>
         public static void MoveValue(this RegistryKey registryKey, string valueName, string newValueName)
         {
-            if (valueName.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(valueName))
                 throw new ArgumentException();
 
-            if (newValueName.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(newValueName))
                 throw new ArgumentException();
 
             // Copy the value
@@ -246,9 +240,8 @@ namespace RayCarrot.Windows.Registry
                 registryKey.OpenSubKey(subKeyName, false)?.Dispose();
                 return true;
             }
-            catch (SecurityException ex)
+            catch (SecurityException)
             {
-                ex.HandleExpected("Checking for Registry read permission");
                 return false;
             }
         }
@@ -268,9 +261,8 @@ namespace RayCarrot.Windows.Registry
                 registryKey.OpenSubKey(subKeyName, true)?.Dispose();
                 return true;
             }
-            catch (SecurityException ex)
+            catch (SecurityException)
             {
-                ex.HandleExpected("Checking for Registry write permission");
                 return false;
             }
         }
@@ -286,22 +278,21 @@ namespace RayCarrot.Windows.Registry
         {
             try
             {
-                registryKey.GetParentKey().RunAndDispose(x => x.OpenSubKey(RegistryHelpers.GetSubKeyName(registryKey.Name))).Dispose();
+                using (var key = registryKey.GetParentKey())
+                    key.OpenSubKey(RegistryHelpers.GetSubKeyName(registryKey.Name))?.Dispose();
+
                 return true;
             }
-            catch (SecurityException ex)
+            catch (SecurityException)
             {
-                ex.HandleExpected("Checking for Registry write permission");
                 return false;
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
-                ex.HandleError("Checking for Registry write permission");
                 throw;
             }
             catch (Exception ex)
             {
-                ex.HandleError("Checking for Registry write permission");
                 throw new ArgumentException("The parent key could not be opened from the Registry key", ex);
             }
         }
@@ -319,9 +310,8 @@ namespace RayCarrot.Windows.Registry
                 TryOpenSubKeys(registryKey, false);
                 return true;
             }
-            catch (SecurityException ex)
+            catch (SecurityException)
             {
-                ex.HandleExpected("Checking for Registry sub key tree read permission");
                 return false;
             }
         }
@@ -339,9 +329,8 @@ namespace RayCarrot.Windows.Registry
                 TryOpenSubKeys(registryKey, true);
                 return true;
             }
-            catch (SecurityException ex)
+            catch (SecurityException)
             {
-                ex.HandleExpected("Checking for Registry sub key tree write permission");
                 return false;
             }
         }

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using RayCarrot.Common;
 
 namespace RayCarrot.Windows.Registry
 {
@@ -133,7 +132,7 @@ namespace RayCarrot.Windows.Registry
                 keys.RemoveAt(0);
 
                 // Get the sub key
-                var returnValue = key.OpenSubKey(keys.JoinItems(KeySeparatorCharacter.ToString()), writable);
+                var returnValue = key.OpenSubKey(String.Join(KeySeparatorCharacter.ToString(), keys), writable);
 
                 // Return the sub key
                 return returnValue;
@@ -249,7 +248,7 @@ namespace RayCarrot.Windows.Registry
 
             keys.RemoveAt(keys.Count - 1);
 
-            return keys.JoinItems(KeySeparatorCharacter.ToString());
+            return String.Join(KeySeparatorCharacter.ToString(), keys);
         }
 
         /// <summary>
@@ -260,7 +259,7 @@ namespace RayCarrot.Windows.Registry
         public static string CombinePaths(params string[] keyPaths)
         {
             // Normalize the paths and return as absolute path
-            return keyPaths.Select(x => x.Trim(KeySeparatorCharacter)).JoinItems(KeySeparatorCharacter.ToString());
+            return String.Join(KeySeparatorCharacter.ToString(), keyPaths.Select(x => x.Trim(KeySeparatorCharacter)));
         }
 
         /// <summary>
@@ -279,7 +278,8 @@ namespace RayCarrot.Windows.Registry
 
             var hive = GetHiveFromName(keyPath.Split(KeySeparatorCharacter).FirstOrDefault());
 
-            return RegistryKey.OpenBaseKey(hive, registryView).RunAndDispose(x => x.CreateSubKey(keyPath.Remove(0, GetFullName(hive).Length + KeySeparatorCharacter.ToString().Length), writable));
+            using (var key = RegistryKey.OpenBaseKey(hive, registryView))
+                return key.CreateSubKey(keyPath.Remove(0, GetFullName(hive).Length + KeySeparatorCharacter.ToString().Length), writable);
         }
 
         /// <summary>
