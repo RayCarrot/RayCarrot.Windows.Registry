@@ -62,7 +62,7 @@ namespace RayCarrot.Windows.Registry
             string name = RegistryHelpers.GetSubKeyName(registryKey.Name);
 
             // Get the parent key
-            using (var parent = registryKey.GetParentKey(true))
+            using (RegistryKey parent = registryKey.GetParentKey(true))
             {
                 // Dispose the key
                 registryKey.Dispose();
@@ -109,7 +109,6 @@ namespace RayCarrot.Windows.Registry
             {
                 // Delete the old key
                 registryKey.DeleteSubKeyTree(subKeyName);
-
             }
             catch (Exception ex)
             {

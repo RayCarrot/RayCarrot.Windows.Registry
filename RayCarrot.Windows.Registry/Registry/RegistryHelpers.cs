@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 
@@ -108,7 +107,7 @@ namespace RayCarrot.Windows.Registry
         public static RegistryKey GetKeyFromFullPath(string fullPath, RegistryView registryView, bool writable = false)
         {
             // Split the keys
-            List<string> keys = NormalizePath(fullPath).Split(KeySeparatorCharacter).ToList();
+            string[] keys = NormalizePath(fullPath).Split(KeySeparatorCharacter);
 
             RegistryKey key = null;
 
@@ -125,14 +124,11 @@ namespace RayCarrot.Windows.Registry
                 }
 
                 // If the path is only the base key, return it
-                if (keys.Count == 1)
+                if (keys.Length == 1)
                     return key;
 
-                // Remove the base key
-                keys.RemoveAt(0);
-
                 // Get the sub key
-                var returnValue = key.OpenSubKey(String.Join(KeySeparatorCharacter.ToString(), keys), writable);
+                RegistryKey returnValue = key.OpenSubKey(String.Join(KeySeparatorCharacter.ToString(), keys.Skip(1)), writable);
 
                 // Return the sub key
                 return returnValue;
@@ -285,6 +281,6 @@ namespace RayCarrot.Windows.Registry
         /// <summary>
         /// The separator character used for key paths
         /// </summary>
-        public static char KeySeparatorCharacter => '\\';
+        public const char KeySeparatorCharacter = '\\';
     }
 }
